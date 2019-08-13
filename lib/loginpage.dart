@@ -1,19 +1,11 @@
-import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:ourpromise/tabpage.dart';
 
+import 'bloc.dart';
 
 
-GoogleSignIn _googleSignIn = new GoogleSignIn(
-  scopes: <String>[
-    'email',
-    'https://www.googleapis.com/auth/contacts.readonly',
-  ],
-);
 
 class LoginPage extends StatefulWidget {
   @override
@@ -21,45 +13,6 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn googleSignIn = new GoogleSignIn();
-
-  Future<FirebaseUser> testSignInWithGoogle(BuildContext context) async {
-    Scaffold.of(context).showSnackBar(new SnackBar(
-      content: new Text('Sign in'),
-    ));
-
-    final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
-    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-    
-    final AuthCredential credential = GoogleAuthProvider.getCredential(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
-    );
-
-    FirebaseUser userDetails = await _auth.signInWithCredential(credential);
-    
-    ProviderDetails providerInfo = new ProviderDetails(userDetails.providerId);
-
-    List<ProviderDetails> providerData = new List<ProviderDetails>();
-    providerData.add(providerInfo);
-
-    UserDetails details = new UserDetails(
-      userDetails.providerId,
-      userDetails.displayName,
-      userDetails.photoUrl,
-      userDetails.email,
-      providerData,
-    );
-    Navigator.push(
-      context,
-      new MaterialPageRoute(
-        builder: (context) => new TabPage(detailsUser: details),
-      ),
-    );
-    return userDetails;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,28 +38,36 @@ class _LoginPageState extends State<LoginPage> {
                     width: 250.0,
                     child: Align(
                       alignment: Alignment.center,
-                      child: RaisedButton(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: new BorderRadius.circular(30.0)),
-                        color: Color(0xffffffff),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: <Widget>[
-                            Icon(
-                              FontAwesomeIcons.google,
-                              color: Color(0xffCE107C),
-                            ),
-                            SizedBox(width: 10.0),
-                            Text(
-                              'Sign in with Google',
-                              style: TextStyle(
-                                  color: Colors.black, fontSize: 18.0),
-                            ),
-                          ],
-                        ),
-                        onPressed: () => testSignInWithGoogle(context),
-                      ),
-                    )),
+                      child: StreamBuilder<UserInfoDetails>(
+                        stream: userInfoBloc.userInfoStream,
+                        builder: (context, snapshot) {
+                          return RaisedButton(
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: new BorderRadius.circular(30.0)),
+                                color: Color(0xffffffff),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: <Widget>[
+                                    Icon(
+                                      FontAwesomeIcons.google,
+                                      color: Color(0xffCE107C),
+                                    ),
+                                    SizedBox(width: 10.0),
+                                    Text(
+                                      'Sign in with Google',
+                                      style: TextStyle(
+                                          color: Colors.black, fontSize: 18.0),
+                                    ),
+                                  ],
+                                ),
+                                onPressed: () {
+                                  loginWithGoogle(context);
+                                }
+                                
+                          );
+                        }
+                      )),
+                )
               ],
             )
           ],
@@ -114,19 +75,10 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
-}
 
-class UserDetails {
-  final String providerDetails;
-  final String userName;
-  final String photoUrl;
-  final String userEmail;
-  final List<ProviderDetails> providerData;
+  loginWithGoogle(BuildContext context) {
 
-  UserDetails(this.providerDetails,this.userName, this.photoUrl,this.userEmail, this.providerData);
-}
-
-class ProviderDetails {
-  ProviderDetails(this.providerDetails);
-  final String providerDetails;
+    if(userInfoBloc.googleSignIn.currentUser == null) userInfoBloc.testSignInWithGoogle(context);
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) => TabPage()));
+  }
 }
