@@ -1,10 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:ourpromise/loginpage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'bloc.dart';
-
 
 class TabPage extends StatefulWidget {
 
@@ -23,6 +22,12 @@ class _TabPageState extends State<TabPage> {
     return StreamBuilder<UserInfoDetails>(
       stream: userInfoBloc.userInfoStream,
       builder: (context, snapshot) {
+        UserInfoDetails userInfo;
+        if(snapshot.hasData){
+          userInfo = snapshot.data;
+        }
+        else
+          userInfoBloc.addCurrentUserInfo;
         return Scaffold(
           appBar:  AppBar(
               // title:  Text(snapshot.data.userName),
@@ -50,22 +55,22 @@ class _TabPageState extends State<TabPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 CircleAvatar(
-                  backgroundImage:NetworkImage(snapshot.data.photoUrl),
+                  backgroundImage:NetworkImage(userInfo.photoUrl),
                   radius: 50.0,
                 ),
                 SizedBox(height:10.0),
                   Text(
-                  "Name : " + snapshot.data.userName,
+                  "Name : " + userInfo.userName,
                   style:  TextStyle(fontWeight: FontWeight.bold, color: Colors.black,fontSize: 20.0),
                 ),
                 SizedBox(height:10.0),
                   Text(
-                  "Email : " + snapshot.data.userEmail,
+                  "Email : " + userInfo.userEmail,
                   style:  TextStyle(fontWeight: FontWeight.bold, color: Colors.black,fontSize: 20.0),
                 ),
                 SizedBox(height:10.0),
                 Text(
-                  "Provider : " + snapshot.data.providerDetails,
+                  "Provider : " + userInfo.providerDetails,
                   style:  TextStyle(fontWeight: FontWeight.bold, color: Colors.black,fontSize: 20.0),
                 ),
               ],

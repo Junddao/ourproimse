@@ -16,42 +16,21 @@ GoogleSignIn _googleSignIn = new GoogleSignIn(
 
 class UserInfoBloc{
 
+  UserInfoDetails details;
+
   final userInfoController = StreamController<UserInfoDetails>.broadcast();
+
   get userInfoStream => userInfoController.stream;
+
+  get addCurrentUserInfo => userInfoController.sink.add(details);
+
+  addToUserInfo(UserInfoDetails userInfo){
+    details = userInfo;
+    userInfoController.sink.add(details);
+  }
+
   dispose(){
     userInfoController.close();
-  }
-  
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn googleSignIn = new GoogleSignIn();
-  bool isLogin = false;
-  
-  Future<void> testSignInWithGoogle(BuildContext context) async {
-    isLogin = true;
-    final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
-    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-    
-    final AuthCredential credential = GoogleAuthProvider.getCredential(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
-    );
-
-    FirebaseUser userDetails = await _auth.signInWithCredential(credential);
-    
-    ProviderDetails providerInfo = new ProviderDetails(userDetails.providerId);
-
-    List<ProviderDetails> providerData = new List<ProviderDetails>();
-    providerData.add(providerInfo);
-
-    UserInfoDetails details = new UserInfoDetails(
-      userDetails.providerId,
-      userDetails.displayName,
-      userDetails.photoUrl,
-      userDetails.email,
-      providerData,
-    );
-
-    userInfoController.sink.add(details);
   }
 }
 

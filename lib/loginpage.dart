@@ -1,11 +1,10 @@
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:ourpromise/tabpage.dart';
-
 import 'bloc.dart';
-
-
 
 class LoginPage extends StatefulWidget {
   @override
@@ -13,6 +12,47 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+
+  GoogleSignIn _googleSignIn = new GoogleSignIn(
+    scopes: <String>[
+      'email',
+      'https://www.googleapis.com/auth/contacts.readonly',
+    ],
+  );
+
+  
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn googleSignIn = new GoogleSignIn();
+  bool isLogin = false;
+
+  Future<void> testSignInWithGoogle() async {
+
+    final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
+    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+    
+    final AuthCredential credential = GoogleAuthProvider.getCredential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    FirebaseUser userDetails = await _auth.signInWithCredential(credential);
+    
+    ProviderDetails providerInfo = new ProviderDetails(userDetails.providerId);
+
+    List<ProviderDetails> providerData = new List<ProviderDetails>();
+    providerData.add(providerInfo);
+
+    UserInfoDetails details = new UserInfoDetails(
+      userDetails.providerId,
+      userDetails.displayName,
+      userDetails.photoUrl,
+      userDetails.email,
+      providerData,
+    );
+    userInfoBloc.addToUserInfo(details);
+
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) => TabPage()));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,9 +100,8 @@ class _LoginPageState extends State<LoginPage> {
                                     ),
                                   ],
                                 ),
-                                onPressed: () {
-                                  loginWithGoogle(context);
-                                }
+                                onPressed : testSignInWithGoogle,
+                                
                                 
                           );
                         }
@@ -74,11 +113,5 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
-  }
-
-  loginWithGoogle(BuildContext context) {
-
-    if(userInfoBloc.googleSignIn.currentUser == null) userInfoBloc.testSignInWithGoogle(context);
-    Navigator.of(context).push(MaterialPageRoute(builder: (context) => TabPage()));
   }
 }
