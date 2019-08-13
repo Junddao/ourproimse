@@ -17,13 +17,6 @@ class _TabPageState extends State<TabPage> {
 
   int _selectedIndex = 0;
   
-  List _pages = [
-    Text('page1'),
-    Text('page2'),
-    Text('page3'),
-    
-  ];
-
   @override
   Widget build(BuildContext context) {
     final GoogleSignIn _gSignIn =  GoogleSignIn();
