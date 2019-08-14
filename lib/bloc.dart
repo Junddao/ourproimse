@@ -1,19 +1,5 @@
 import 'dart:async';
 
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-
-import 'tabpage.dart';
-
-
-GoogleSignIn _googleSignIn = new GoogleSignIn(
-  scopes: <String>[
-    'email',
-    'https://www.googleapis.com/auth/contacts.readonly',
-  ],
-);
-
 class UserInfoBloc{
 
   UserInfoDetails details;
@@ -21,13 +7,14 @@ class UserInfoBloc{
   final userInfoController = StreamController<UserInfoDetails>.broadcast();
 
   get userInfoStream => userInfoController.stream;
-
-  get addCurrentUserInfo => userInfoController.sink.add(details);
+  // get addCurrentUserInfo => userInfoController.sink.add(details);
+  get addCurrentUserInfo => details;
 
   addToUserInfo(UserInfoDetails userInfo){
     details = userInfo;
     userInfoController.sink.add(details);
   }
+  
 
   dispose(){
     userInfoController.close();
@@ -50,3 +37,27 @@ class ProviderDetails {
   ProviderDetails(this.providerDetails);
   final String providerDetails;
 }
+
+
+class TabStates{
+
+  int selectedIndex = 0;
+
+  final selectedIndexController = StreamController<int>.broadcast();
+
+  get selectedIndexStream => selectedIndexController.stream;
+  get addCurrentSelectedIndex => selectedIndexController.sink.add(selectedIndex);
+
+  selectTab(int value)
+  {
+    selectedIndex = value;
+    selectedIndexController.sink.add(selectedIndex);
+  }
+
+  dispose()
+  {
+    selectedIndexController.close();
+  }
+}
+
+TabStates tabStates = new TabStates();
