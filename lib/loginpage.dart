@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:ourpromise/tabpage.dart';
-import 'bloc.dart';
+import 'data/userinfo.dart';
+import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -49,8 +50,9 @@ class _LoginPageState extends State<LoginPage> {
       userDetails.email,
       providerData,
     );
-    userInfoBloc.addToUserInfo(details);
 
+    Provider.of<UserInfomation>(context).details = details;
+    
     Navigator.of(context).push(MaterialPageRoute(builder: (context) => TabPage()));
   }
 
@@ -78,10 +80,7 @@ class _LoginPageState extends State<LoginPage> {
                     width: 250.0,
                     child: Align(
                       alignment: Alignment.center,
-                      child: StreamBuilder<UserInfoDetails>(
-                        stream: userInfoBloc.userInfoStream,
-                        builder: (context, snapshot) {
-                          return RaisedButton(
+                      child: RaisedButton(
                                 shape: RoundedRectangleBorder(
                                     borderRadius: new BorderRadius.circular(30.0)),
                                 color: Color(0xffffffff),
@@ -100,11 +99,7 @@ class _LoginPageState extends State<LoginPage> {
                                     ),
                                   ],
                                 ),
-                                onPressed : testSignInWithGoogle,
-                                
-                                
-                          );
-                        }
+                                onPressed : testSignInWithGoogle,                       
                       )),
                 )
               ],

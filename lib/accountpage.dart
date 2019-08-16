@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'bloc.dart';
+import 'package:ourpromise/data/userinfo.dart';
+import 'package:provider/provider.dart';
 
 class AccountPage extends StatefulWidget {
   @override
@@ -8,44 +9,37 @@ class AccountPage extends StatefulWidget {
 
 class _AccountPageState extends State<AccountPage> {
 
-  UserInfoDetails userInfo;
-
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<UserInfoDetails>(
-      stream: userInfoBloc.userInfoStream,
-      builder: (context, snapshot) {
-        snapshot.hasData ? userInfo = snapshot.data : userInfo = userInfoBloc.addCurrentUserInfo;
-        return Container(
+    return Container(
           child : Center(
                   child: 
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         CircleAvatar(
-                          backgroundImage:NetworkImage(userInfo.photoUrl),
+                          backgroundImage:NetworkImage(Provider.of<UserInfomation>(context).details.photoUrl),
                           radius: 50.0,
                         ),
                         SizedBox(height:10.0),
                           Text(
-                          "Name : " + userInfo.userName,
+                          "Name : " + Provider.of<UserInfomation>(context).details.userName,
                           style:  TextStyle(fontWeight: FontWeight.bold, color: Colors.black,fontSize: 20.0),
                         ),
                         SizedBox(height:10.0),
                           Text(
-                          "Email : " + userInfo.userEmail,
+                          "Email : " + Provider.of<UserInfomation>(context).details.userEmail,
                           style:  TextStyle(fontWeight: FontWeight.bold, color: Colors.black,fontSize: 20.0),
                         ),
                         SizedBox(height:10.0),
                         Text(
-                          "Provider : " + userInfo.providerDetails,
+                          "Provider : " + Provider.of<UserInfomation>(context).details.providerDetails,
                           style:  TextStyle(fontWeight: FontWeight.bold, color: Colors.black,fontSize: 20.0),
                         ),
                       ],
                     ),
                   ),
         );
-      }
-    );
+   
   }
 }
